@@ -3156,6 +3156,40 @@ func (c *Client) CreateDockerBuildConfigWithBinaryInput(commonObjectMeta metav1.
 	}
 	return bc, err
 }
+func (c *Client) CreateDockerBuildConfigWithBuilderImageInput(commonObjectMeta metav1.ObjectMeta, builderImage string, outputImageTag string, envVars []corev1.EnvVar, outputType string) (bc buildv1.BuildConfig, err error) {
+	//log.Spinner("Error 1")
+	var imageStream *imagev1.ImageStream
+	if imageStream, err = c.GetImageStream(c.Namespace, commonObjectMeta.Name, ""); err != nil || imageStream == nil {
+		imageStream = &imagev1.ImageStream{
+			ObjectMeta: commonObjectMeta,
+		}
+
+		_, err = c.imageClient.ImageStreams(c.Namespace).Create(imageStream)
+		if err != nil {
+			log.Spinner(err.Error())
+			return bc, errors.Wrapf(err, "unable to create ImageStream for %s", commonObjectMeta.Name)
+		}
+	}
+	imageNS, imageName, imageTag, _, err := ParseImageName(builderImage)
+
+	imageStream, err = c.GetImageStream(imageNS, imageName, imageTag)
+	if err != nil {
+		return buildv1.BuildConfig{}, errors.Wrap(err, "unable to retrieve image stream for CreateBuildConfig")
+	}
+	imageNS = imageStream.ObjectMeta.Namespace
+
+	bc = generateDockerBuildConfigWithBuilderImage(commonObjectMeta, outputImageTag, imageName+":"+imageTag, imageNS)
+
+	if len(envVars) > 0 {
+		bc.Spec.Strategy.SourceStrategy.Env = envVars
+	}
+	log.Spinner("Checking if pod is getting generated or not")
+	_, err = c.buildClient.BuildConfigs(c.Namespace).Create(&bc)
+	if err != nil {
+		return bc, errors.Wrapf(err, "unable to create BuildConfig for %s", commonObjectMeta.Name)
+	}
+	return bc, err
+}
 
 // CreateBuildConfig creates a buildConfig using the builderImage as well as gitURL.
 // envVars is the array containing the environment variables

@@ -261,21 +261,21 @@ func (a Adapter) runBuildConfig(client *occlient.Client, parameters common.Build
 	signal.Notify(controlC, os.Interrupt, syscall.SIGTERM)
 	go a.terminateBuild(controlC, client, commonObjectMeta)
 
-	_, err = client.CreateDockerBuildConfigWithBinaryInput(commonObjectMeta, dockerfilePath, parameters.Tag, []corev1.EnvVar{}, buildOutput)
+	//_, err = client.CreateDockerBuildConfigWithBinaryInput(commonObjectMeta, dockerfilePath, parameters.Tag, []corev1.EnvVar{}, buildOutput)
+	_, err = client.CreateDockerBuildConfigWithBuilderImageInput(commonObjectMeta, "nodejs:latest", parameters.Tag, []corev1.EnvVar{}, buildOutput)
 	if err != nil {
 		return err
 	}
-
-	defer func() {
-		// This will delete both the BuildConfig and any builds using that BuildConfig
-		derr := client.DeleteBuildConfig(commonObjectMeta)
-		if err == nil {
-			err = derr
-		}
-	}()
-
+	/*
+		defer func() {
+			// This will delete both the BuildConfig and any builds using that BuildConfig
+			derr := client.DeleteBuildConfig(commonObjectMeta)
+			if err == nil {
+				err = derr
+			}
+		}()*/
 	syncAdapter := sync.New(a.AdapterContext, &a.Client)
-	reader, err := syncAdapter.SyncFilesBuild(parameters, dockerfilePath)
+	reader, err := syncAdapter.SyncFilesBuild(parameters, "")
 	if err != nil {
 		return err
 	}

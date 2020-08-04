@@ -51,11 +51,13 @@ func (a Adapter) SyncFilesBuild(buildParameters common.BuildParameters, dockerfi
 	}
 
 	if len(files) > 0 {
+		log.Spinner("Checking if files are more than 0")
 		klog.V(4).Infof("Copying files %s to pod", strings.Join(files, " "))
-		dockerfile := map[string][]byte{
-			dockerfilePath: buildParameters.DockerfileBytes,
-		}
-		reader, err = GetTarReader(buildParameters.Path, syncFolder, files, absIgnoreRules, dockerfile)
+		/*
+			dockerfile := map[string][]byte{
+				dockerfilePath: buildParameters.DockerfileBytes,
+			}*/
+		reader, err = GetTarReader(buildParameters.Path, syncFolder, files, absIgnoreRules)
 		s.End(true)
 		return reader, err
 	}

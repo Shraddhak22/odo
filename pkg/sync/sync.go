@@ -20,7 +20,7 @@ type SyncClient interface {
 }
 
 // GetTarReader creates a tar file from files and return a reader to it
-func GetTarReader(localPath string, targetPath string, copyFiles []string, globExps []string, copyBytes map[string][]byte) (reader io.Reader, err error) {
+func GetTarReader(localPath string, targetPath string, copyFiles []string, globExps []string) (reader io.Reader, err error) {
 	// Destination is set to "ToSlash" as all containers being ran within OpenShift / S2I are all
 	// Linux based and thus: "\opt\app-root\src" would not work correctly.
 	dest := filepath.ToSlash(filepath.Join(targetPath, filepath.Base(localPath)))
@@ -42,23 +42,24 @@ func GetTarReader(localPath string, targetPath string, copyFiles []string, globE
 		// For each of the files passed, write them to the tar.Writer
 		// No files can be passed, but if any are, they will be bundled up in the
 		// tar as well.
-		for name, content := range copyBytes {
-			hdr := &tar.Header{
-				Name: name,
-				Mode: 421,
-				Size: int64(len(content)),
-			}
-			err = tarWriter.WriteHeader(hdr)
-			if err != nil {
-				log.Errorf("Error writing header for file %s: %#v", name, err)
-				os.Exit(1)
-			}
-			_, err = tarWriter.Write(content)
-			if err != nil {
-				log.Errorf("Error writing contents of file %s: %#v", name, err)
-				os.Exit(1)
-			}
-		}
+		/*
+			for name, content := range copyBytes {
+				hdr := &tar.Header{
+					Name: name,
+					Mode: 421,
+					Size: int64(len(content)),
+				}
+				err = tarWriter.WriteHeader(hdr)
+				if err != nil {
+					log.Errorf("Error writing header for file %s: %#v", name, err)
+					os.Exit(1)
+				}
+				_, err = tarWriter.Write(content)
+				if err != nil {
+					log.Errorf("Error writing contents of file %s: %#v", name, err)
+					os.Exit(1)
+				}
+			}*/
 
 		tarWriter.Close()
 	}()
