@@ -74,6 +74,9 @@ type Component struct {
 
 	// Allows specifying a dockerfile to initiate build
 	Dockerfile *Dockerfile `json:"dockerfile,omitempty"`
+
+	//Allow specifying a builderimage to initiate S2I build
+	SourceToImage *SourceToImage `json:"SourceToImage,omitempty"`
 }
 
 // Composite Composite command that allows executing several sub-commands either sequentially or concurrently
@@ -437,4 +440,29 @@ type Source struct {
 
 	// Mandatory path to source repository hosted locally or on cloud
 	Location string `json:"location"`
+}
+
+//SourceToImage Component for S2I build
+
+type SourceToImage struct {
+	// Mandatory name that allows referencing the Volume component in Container volume mounts or inside a parent
+	Name string `json:"name"`
+
+	// Mandatory path to source code
+	SourceInfo *SourceInfo `json:"source"`
+
+	// Mandatory builder image information
+	BuilderImage string `json:"builderimage"`
+}
+
+// Source represents source code for Dockerfile Component
+type SourceInfo struct {
+	// Mandatory path to local source directory folder
+	SourceDir string `json:"location"`
+
+	// Mandatory branch name details
+	Branch string `json:"branch"`
+
+	// Mandatory path to source repository hosted locally or on cloud
+	LocalSourcePath string `json:"local-source-path"`
 }
