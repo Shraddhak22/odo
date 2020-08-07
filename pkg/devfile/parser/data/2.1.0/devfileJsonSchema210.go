@@ -1198,34 +1198,30 @@ const JsonSchema210 = `{
               "source"
             ],
             "type":"object"
-          }
+          },
           "SourceToImage":{
-            "description":"S2I Build Component",
+            "description":"S2I build component",
             "properties":{
-              "name":{
-                "description":"Mandatory name that allows referencing the S2I build component",
-                "type":"string"
-              },
-              "source":{
-                "location":{
-                  "description":"path of source directory to establish build context",
+                "name":{
+                  "description":"Mandatory name that allows referencing the S2I build component",
                   "type":"string"
                 },
-                "branch":{
-                  "description":"branch details if git url provided as source location",
+                "source":{
+                  "location":{
+                    "description":"Mandatory path to local source directory folder",
+                    "type":"string"
+                  },
+                  "branch":{
+                    "description":"Mandatory branch name details",
+                      "type":"string"
+                  },
+                  "type":"object"
+                },
+                "builderimage":{
+                  "description":"Builder Image Information",
                   "type":"string"
                 }
-                "local-source-path":{
-                  "description":"location of the local source directory folder",
-                   "type":"string"
-                },
-                "type":"object"
               },
-              "builderimage":{
-                "description":"Builder Image Information",
-                "type":"string"
-              },
-            },
             "required":[
               "name",
               "builderimage",
